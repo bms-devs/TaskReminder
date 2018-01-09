@@ -1,0 +1,9 @@
+{
+	"redmine_user": "",
+	"redmine_password": "",
+	"slack_token": "",
+	"projects": [{
+		"name": "redmineProjectName1",
+		"days_limit": 30
+	}]
+}
