@@ -4,7 +4,7 @@ from dateutil.relativedelta import *
 
 def get_holidays(year=2010):
     """ Returns Polish hollidays dates (legally considered non-working days) """
-	""" Author: sebzur https://gist.github.com/sebzur/1810707 """
+    """ Author: sebzur https://gist.github.com/sebzur/1810707 """
     easter_sunday = easter.easter(year)
     holidays = {'New Year': date(year,1,1),
                 'Trzech Kroli': date(year,1,6),
