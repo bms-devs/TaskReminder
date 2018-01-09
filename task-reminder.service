@@ -1,0 +1,17 @@
+# /etc/systemd/system/owncloud.service
+[Unit]
+Description=Redmine task reminder
+After=network.service
+Requires=network.service
+# This will auto-start the cron timer
+Wants=task-reminder.timer
+
+[Service]
+# Giving the container a name (owncloud.service in this case) is really helpful later on
+ExecStart=/usr/bin/python /opt/task_reminder/bin
+ExecStop=/bin/docker stop %n
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
