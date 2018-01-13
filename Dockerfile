@@ -15,3 +15,10 @@ RUN python -m pip install python-dateutil
 VOLUME ["/opt/task_reminder/conf/"]
 COPY app/task_reminder_config.json /opt/task_reminder/conf/
 COPY app/user_config.json /opt/task_reminder/conf/
+
+RUN mkdir /opt/task_reminder/log/
+WORKDIR /opt/task_reminder/
+
+VOLUME ["/opt/task_reminder/log/"]
+
+CMD ["python","task_reminder.py","conf/user_config.json","conf/task_reminder_config.json","log"]
