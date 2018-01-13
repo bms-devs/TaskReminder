@@ -10,3 +10,4 @@ COPY app/task_reminder.py /opt/task_reminder/
 RUN python -m pip install python-redmine
 RUN python -m pip install unidecode
 RUN python -m pip install slackclient
+RUN python -m pip install python-dateutil
