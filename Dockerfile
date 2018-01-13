@@ -1,6 +1,8 @@
-FROM 3.7.0a3-alpine3.7
+FROM python:3.7-rc-slim-stretch
 
-RUN mkdir /opt/task_reminder
+MAINTAINER "Maciej Dłuś" maciej.dlus@bms.com.pl
 
-ADD app /opt/task_reminder/bin
-
+COPY app/get_redmine_tasks.py /opt/task_reminder/
+COPY app/polish_holidays.py /opt/task_reminder/
+COPY app/slack_task_reminder.py /opt/task_reminder/
+COPY app/task_reminder.py /opt/task_reminder/
