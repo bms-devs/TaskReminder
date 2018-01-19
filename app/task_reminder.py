@@ -83,6 +83,8 @@ class TaskReminder(object):
 			reminder_config = json.load(cfg)
 		log_filename = "task_reminder_{dd}.log".format(dd=datetime.datetime.today().strftime('%Y%m%d'))
 		with open(os.path.join(self.log_dir, log_filename), "a") as fl:
+			if (not self.is_working_day(datetime.date.today())):
+				print("[{dt}] Skipping run in not business day".format(dt=datetime.datetime.now()), file=fl)
 			for project in reminder_config["projects"]:
 				tasks = self.list_tasks(reminder_config["redmine_user"], reminder_config["redmine_password"], project)
 				slack = SlackTaskReminder(reminder_config["slack_token"])
@@ -95,7 +97,7 @@ class TaskReminder(object):
 						msg = "Task *" + i.subject + "* is waiting for your reaction for " + str(i.elapsed_days) + " days! - " + i.url
 					print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=msg), file=fl)
 					if not self.debug:
-						slack.send_message(slack_user["id"], msg)
+						print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], msg)), file=fl)
 		with open(os.path.join(self.log_dir, "last_run.log"), "w") as lr:
 			print(str(datetime.datetime.now()), file=lr)
 	
