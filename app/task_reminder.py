@@ -55,13 +55,16 @@ class TaskReminder(object):
                     jrnls.sort(key=lambda x: x.created_on, reverse=True)
                     date = jrnls[-1].created_on.date()
                 t = TaskWaitingForReaction()
+                t.project = j.project_name
                 t.subject = j.subject
                 t.assigned_to = i
                 t.id = j.id
+                t.description = j.description
                 t.url = lister.url + "/issues/" + str(t.id)
                 if hasattr(j, "due_date") and self.subtract_dates(date, j.due_date) < 0:
                     t.due_date = j.due_date
                     t.elapsed_days = None
+                    t.overdue = self.subtract_dates(due_date, datetime.date.today())
                     result.append(t)
                 elapsed_days = self.subtract_dates(date, datetime.date.today())
                 if elapsed_days > project["days_limit"]:
@@ -90,20 +93,38 @@ class TaskReminder(object):
                     users = slack.list_users()
                     for i in tasks:
                         slack_user = self.find_slack_user(users, i.assigned_to)
-                        if i.due_date:
-                            msg = "Task *" + i.subject + "* is should be finished till " + str(i.due_date) + " - " + i.url
-                        else:
-                            msg = "Task *" + i.subject + "* is waiting for your reaction for " + str(i.elapsed_days) + " days! - " + i.url
+                        # if i.due_date:
+                        #     msg = "Task *" + i.subject + "* is should be finished till " + str(i.due_date) + " - " + i.url
+                        # else:
+                        #     msg = "Task *" + i.subject + "* is waiting for your reaction for " + str(i.elapsed_days) + " days! - " + i.url
                         if slack_user:
-                            print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=msg), file=fl)
+                            print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=json.dumps(self.prepare_attachment(i))), file=fl)
                             if not self.debug:
-                                print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], msg)), file=fl)
+                                print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], self.prepare_attachment(i))), file=fl)
                         else:
                             print("[{dt}] Slack user for {user} was not found".format(dt=datetime.datetime.now(), user=i.assigned_to), file=fl)
             else:
                 print("[{dt}] Skipping run in not business day".format(dt=datetime.datetime.now()), file=fl)
         with open(os.path.join(self.log_dir, "last_run.log"), "w") as lr:
             print(str(datetime.datetime.now()), file=lr)
+
+    def prepare_attachment(self, task):
+        attachment = {}
+        attachment["fields"] = []
+        if task.due_date:
+            attachment["fallback"] = "Overdue task *" + task.subject + "*, should be finished by " + str(task.due_date) + " - " + task.url
+            attachment["pretext"] = "Overdue task"
+            attachment["fields"].append({"title":"Overdue", "value": str(task.overdue) + " days", "short":"true"})
+        else:
+            attachment["fallback"] = "Task *" + task.subject + "* is waiting for your reaction for " + str(task.elapsed_days) + " days! - " + task.url
+            attachment["pretext"] = "Neglected task"
+            attachment["fields"].append({"title":"Last updated", "value": str(task.elapsed_days) + " days ago", "short":"true"})
+        attachment["title"] = task.subject
+        attachment["title_link"] = task.url
+        attachment["text"] = task.description
+        attachment["fields"].append({"title":"Project", "value": task.project, "short":"true"})
+        attachment["color"] =  "danger"
+        return attachment
 
 def main():
     reminder = TaskReminder()

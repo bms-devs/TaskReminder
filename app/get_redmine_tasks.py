@@ -23,11 +23,12 @@ class RedmineLister:
 		project = redmine.project.get(project_name)
 		result = {}
 		for i in project.issues:
-			iss = redmine.issue.get(i.id, include='journals')
-			if not hasattr(iss, "assigned_to"):
-				assigned_to = iss.author.id
+			issue = redmine.issue.get(i.id, include='journals')
+			issue.project_name = project.name
+			if not hasattr(issue, "assigned_to"):
+				assigned_to = issue.author.id
 			else:
-				assigned_to = iss.assigned_to.id
+				assigned_to = issue.assigned_to.id
 			assigned_to = redmine.user.get(assigned_to)
 			if "login" in assigned_to._decoded_attrs:
 				name = assigned_to._decoded_attrs["login"]
@@ -35,7 +36,7 @@ class RedmineLister:
 				name = unidecode.unidecode(assigned_to.firstname.strip().lower()) + "." + unidecode.unidecode(assigned_to.lastname.strip().lower())
 			if not name in result:
 				result[name] = []
-			result[name].append(iss)
+			result[name].append(issue)
 		return result
 
 def print_usage():

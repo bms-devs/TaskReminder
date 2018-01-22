@@ -12,10 +12,13 @@ class SlackTaskReminder(object):
 			"users.list"
 		)["members"]
 	
-	def send_message(self, channel_id, message):
+	def send_message(self, channel_id, attachment):
+		attachments = []
+		attachments.append(attachment)
 		return self._sc.api_call(
 			"chat.postMessage",
 			channel=channel_id,
-			text=message,
+			text="*Task requires your attention!!!*",
+			attachments = json.dumps(attachments),
 			username=self.name
 		)
