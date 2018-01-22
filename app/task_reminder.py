@@ -94,9 +94,12 @@ class TaskReminder(object):
                             msg = "Task *" + i.subject + "* is should be finished till " + str(i.due_date) + " - " + i.url
                         else:
                             msg = "Task *" + i.subject + "* is waiting for your reaction for " + str(i.elapsed_days) + " days! - " + i.url
-                        print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=msg), file=fl)
-                        if not self.debug:
-                            print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], msg)), file=fl)
+                        if slack_user:
+                            print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=msg), file=fl)
+                            if not self.debug:
+                                print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], msg)), file=fl)
+                        else:
+                            print("[{dt}] Slack user for {user} was not found".format(dt=datetime.datetime.now(), user=i.assigned_to), file=fl)
             else:
                 print("[{dt}] Skipping run in not business day".format(dt=datetime.datetime.now()), file=fl)
         with open(os.path.join(self.log_dir, "last_run.log"), "w") as lr:
