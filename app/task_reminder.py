@@ -61,10 +61,10 @@ class TaskReminder(object):
                 t.id = j.id
                 t.description = j.description
                 t.url = lister.url + "/issues/" + str(t.id)
-                if hasattr(j, "due_date") and self.subtract_dates(date, j.due_date) < 0:
+                if hasattr(j, "due_date") and self.subtract_dates(j.due_date, date) < 0:
                     t.due_date = j.due_date
                     t.elapsed_days = None
-                    t.overdue = self.subtract_dates(due_date, datetime.date.today())
+                    t.overdue = self.subtract_dates(t.due_date, datetime.date.today())
                     result.append(t)
                 elapsed_days = self.subtract_dates(date, datetime.date.today())
                 if elapsed_days > project["days_limit"]:
