@@ -123,6 +123,7 @@ class TaskReminder(object):
         attachment["title_link"] = task.url
         attachment["text"] = task.description
         attachment["fields"].append({"title":"Project", "value": task.project, "short":"true"})
+        attachment["fields"].append({"title":"Typ", "value": task.tracker.name, "short":"true"})
         attachment["color"] =  "danger"
         return attachment
 
