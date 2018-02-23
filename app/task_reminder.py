@@ -61,6 +61,7 @@ class TaskReminder(object):
                 t.id = j.id
                 t.description = j.description
                 t.url = lister.url + "/issues/" + str(t.id)
+                t.tracker = j.tracker
                 if hasattr(j, "due_date") and self.subtract_dates(j.due_date, date) < 0:
                     t.due_date = j.due_date
                     t.elapsed_days = None
@@ -91,18 +92,14 @@ class TaskReminder(object):
                     tasks = self.list_tasks(reminder_config["redmine_user"], reminder_config["redmine_password"], project)
                     slack = SlackTaskReminder(reminder_config["slack_token"])
                     users = slack.list_users()
-                    for i in tasks:
-                        slack_user = self.find_slack_user(users, i.assigned_to)
-                        # if i.due_date:
-                        #     msg = "Task *" + i.subject + "* is should be finished till " + str(i.due_date) + " - " + i.url
-                        # else:
-                        #     msg = "Task *" + i.subject + "* is waiting for your reaction for " + str(i.elapsed_days) + " days! - " + i.url
+                    for task in tasks:
+                        slack_user = self.find_slack_user(users, task.assigned_to)
                         if slack_user:
-                            print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=json.dumps(self.prepare_attachment(i))), file=fl)
+                            print("[{dt}] Sending msg to {user}[{user_id}]: {msg}".format(dt=datetime.datetime.now(), user=slack_user["name"], user_id=slack_user["id"], msg=json.dumps(self.prepare_attachment(task))), file=fl)
                             if not self.debug:
-                                print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], self.prepare_attachment(i))), file=fl)
+                                print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], self.prepare_attachment(task))), file=fl)
                         else:
-                            print("[{dt}] Slack user for {user} was not found".format(dt=datetime.datetime.now(), user=i.assigned_to), file=fl)
+                            print("[{dt}] Slack user for {user} was not found".format(dt=datetime.datetime.now(), user=task.assigned_to), file=fl)
             else:
                 print("[{dt}] Skipping run in not business day".format(dt=datetime.datetime.now()), file=fl)
         with open(os.path.join(self.log_dir, "last_run.log"), "w") as lr:
