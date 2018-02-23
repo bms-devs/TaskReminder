@@ -53,7 +53,7 @@ class TaskReminder(object):
                     date = j.start_date
                 else:
                     jrnls.sort(key=lambda x: x.created_on, reverse=True)
-                    date = jrnls[-1].created_on.date()
+                    date = jrnls[1].created_on.date()
                 t = TaskWaitingForReaction()
                 t.project = j.project_name
                 t.subject = j.subject
