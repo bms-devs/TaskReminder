@@ -99,7 +99,9 @@ class TaskReminder(object):
                             if not self.debug:
                                 print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(slack_user["id"], self.prepare_attachment(task))), file=fl)
                         else:
-                            print("[{dt}] Slack user for {user} was not found".format(dt=datetime.datetime.now(), user=task.assigned_to), file=fl)
+                            print("[{dt}] Slack user for {user} was not found. Sending message to general channel".format(dt=datetime.datetime.now(), user=task.assigned_to), file=fl)
+                            if not self.debug:
+                                print("[{dt}] {response}".format(dt=datetime.datetime.now(), response=slack.send_message(reminder_config["general_channel"], self.prepare_attachment(task))), file=fl)
             else:
                 print("[{dt}] Skipping run in not business day".format(dt=datetime.datetime.now()), file=fl)
         with open(os.path.join(self.log_dir, "last_run.log"), "w") as lr:

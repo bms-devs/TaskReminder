@@ -2,6 +2,7 @@
 	"redmine_user": "",
 	"redmine_password": "",
 	"slack_token": "",
+	"general_channel":"",
 	"projects": [{
 		"name": "redmineProjectName1",
 		"days_limit": 30
